@@ -227,7 +227,7 @@ mjx-container[display="true"] + br {
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -266,6 +266,79 @@ mjx-container[display="true"] + br {
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/22/website/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="szh">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/01/22/website/" class="post-title-link" itemprop="url">一个神秘网站的运营记录</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-01-22 20:09:37 / Modified: 21:03:58" itemprop="dateCreated datePublished" datetime="2022-01-22T20:09:37+08:00">2022-01-22</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>之前写过一些前后端的项目，但这是头一次把网站部署到公网给别人用，这里做一些记录当作经验积累</p>
+<h2 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h2><p>为了加快开发速度，选型还是熟悉的Vue+Vuetify，这个网站目前只需要前端功能，因此后端还没有选型。这一套写的很熟，所以第一版一天就给写出来了。后来遇到一个问题是正常的Vue单页应用对搜索引擎不友好，有一种说法是Google的爬虫对SPA有支持但是别的没有，所以后来用<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/prerender-spa-plugin">prerender-spa-plugin</a>给打包成了服务端渲染，这个的配置参考了<a target="_blank" rel="noopener" href="https://awdr74100.github.io/2020-07-13-webpack-prerenderspaplugin/">这篇文章</a>，做了SSR还有一个好处就是接入统计的时候可以直接在index.html里插入代码，插入的统计代码会被复制到所有打包出来页面的<code>&lt;head&gt;</code>里，不用再动路由了。为了SEO还带了一个插件<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/vue-meta-info">vue-meta-info</a>，可以根据每页的配置自动生成<code>&lt;meta&gt;</code>，Bing的爬虫似乎很需要这个东西，但是Google还是不需要。</p>
+<p>统计方面接入了百度统计和Google Analytics，虽然百度是一坨屎，但是百度统计令人感到意外的很好用，插入代码之后五分钟之内就有数据了，还有实时的数据，就是这个网站存不住登录信息，过几个小时都要重新登陆和邮箱验证。不知道为啥Google Analytics这几天一直都没跑起来，可能是配置出了问题。在做了SSR的打包之后应该直接按照他们提供的方法在<code>index.html</code>的<code>&lt;head&gt;</code>里插入代码就好了。否则还需要在<code>main.js</code>里头加<code>router.beforeEach</code>来处理。</p>
+<p>服务器选了UCloud的香港服务器，单核2G内存1M带宽，买了两个月花了二百五十左右，主要是为了免去备案的麻烦，但是买完会有客服打电话加微信还是挺烦的。域名直接在阿里买了一年的，接近一百块。服务器就是普通的Nginx，没做特别的配置。运行了几天都挺稳定的，就是加载速度略慢，这个的原因还有待排查。</p>
+<h2 id="运营"><a href="#运营" class="headerlink" title="运营"></a>运营</h2><p>1.21浏览量大概在50，主要是当天在B站专栏发了广告<br>1.22浏览量也大概在60，广告继续发挥作用，还有零星从Bing来的，说明搜索引擎开始发挥作用了</p>
+<h3 id="SEO"><a href="#SEO" class="headerlink" title="SEO"></a>SEO</h3><h4 id="Google"><a href="#Google" class="headerlink" title="Google"></a>Google</h4><p>Google的爬虫是三个里面最灵的，用<a target="_blank" rel="noopener" href="https://search.google.com/search-console">Search Console</a>可以检查域名有没有被收录，之后就可以向Google提交域名，这个是三个搜索引擎里最灵的，上午十一点左右提交，当天下午五点左右就给收录了，而且不需要其他信息。但是Google给的初始排名不怎么高，除了精确搜索标题排到前二之外剩下的都不在第一页里，可能是需要做SEO的地方。</p>
+<h4 id="Bing"><a href="#Bing" class="headerlink" title="Bing"></a>Bing</h4><p>Bing可以用<a target="_blank" rel="noopener" href="https://www.bing.com/webmasters">Webmaster Tool</a>提交域名并检查是否被收录，但是<code>已发现但未爬网</code>的状态让人感觉很迷，事后发现等一阵子就好了。Bing要求很多，需要提供<code>description</code>，标题还要超过15字之类的，还好这些都可以用他的网站扫描暴露出来，这些修好以后可以重新提交。Bing在上线四天左右给收录了，而且排名给到了第一页，收录之后就有了从Bing来的流量（虽然只有个位数）。</p>
+<h4 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h4><p>百度的链接在<a target="_blank" rel="noopener" href="https://ziyuan.baidu.com/">搜索资源平台</a>提交，百度是最烂的，只能检查可不可以正常爬下来，没法主动检查有没有被收录，而且到现在（上线四天以后）也没给收录，不知道发生了啥，难道是备案的问题？</p>
+<h3 id="其他推广"><a href="#其他推广" class="headerlink" title="其他推广"></a>其他推广</h3><p>1.21写了一篇广告（写的像论文一样）用小号发到B站专栏上了，两天大概170的浏览量10的收藏，给网站贡献了80左右的浏览量和60左右的UV，转化率还是很高。别的平台以后慢慢打广告罢，还要注册小号之类的。简书发了一篇被撤回了，好像因为外链之类的原因。目前网站主要的流量还是这些推广，希望以后能往搜索引擎方向倾斜。主要还是想多发一些带外链的广告，这样也有利于SEO。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/19/game-engine/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -289,10 +362,16 @@ mjx-container[display="true"] + br {
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-01-19 14:59:54 / Modified: 18:47:26" itemprop="dateCreated datePublished" datetime="2022-01-19T14:59:54+08:00">2022-01-19</time>
+      <time title="Created: 2022-01-19 14:59:54" itemprop="dateCreated datePublished" datetime="2022-01-19T14:59:54+08:00">2022-01-19</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2022-01-22 17:46:07" itemprop="dateModified" datetime="2022-01-22T17:46:07+08:00">2022-01-22</time>
+      </span>
 
   
 </div>
@@ -311,7 +390,7 @@ mjx-container[display="true"] + br {
 <li>阴影队列：用于渲染阴影贴图，在这一队列中的物体需要加入不透明队列才能正常渲染，这一队列不需要进行光照剔除，但需要根据光源进行视锥体剔除。</li>
 <li>透明队列：用于渲染半透明物体，这一队列中的物体需要在视锥体剔除后按由远到近的顺序进行渲染。</li>
 </ul>
-<h3 id="场景管理"><a href="#场景管理" class="headerlink" title="场景管理"></a>场景管理</h3><p>除地形以外，场景中的物体和灯光（方向光，区域光，自发光等光源除外，参见全局光照）由稀疏八叉树管理。对象的在八叉树中的位置由其在世界坐标系中的位置和范围决定，对于物体，其范围由顶点构成的AABB包围盒决定，对于灯光，其范围由其衰减范围和作用角度决定，稀疏八叉树的非叶节点也可以用来记录对象信息。</p>
+<h3 id="场景管理"><a href="#场景管理" class="headerlink" title="场景管理"></a>场景管理</h3><p>除地形以外，场景中的物体和灯光（方向光，区域光，自发光等光源除外，参见全局光照）由稀疏八叉树管理。对象在八叉树中的位置由其在世界坐标系中的位置和范围决定，对于物体，其范围由顶点构成的AABB包围盒决定，对于灯光，其范围由其衰减范围和作用角度决定，稀疏八叉树的非叶节点也可以用来记录对象信息。</p>
 <p>当物体加入渲染队列或被移动时，物体被插入八叉树，插入时物体从根结点出发，如果物体占用当前非叶节点的多个子结点或作为当前叶节点（叶节点深度需要大于某一阈值）中唯一对象，将物体插入当前节点，插入结束。若处于非叶节点，则根据范围确定子节点递归插入，处于叶节点，则尝试将叶节点分裂并继续插入，若无法分裂则插入当前叶节点。当物体移动时，需要判断其在八叉树中的位置是否被改变，若被改变则需要将其从树中删除并重新插入，删除时，需要自底向上合并空节点，因此需要维护非空子树个数，并且渲染器组件中保存其在各渲染层中八叉树节点的指针。</p>
 <p>将光源插入八叉树的操作与物体类似，区别在于每一个光源最终都会被插入到一系列叶节点和它们的公共祖先中，这一插入过程可以由懒标记实现，最终所有能够被某一光源影响到的节点都会记录这一光源，但在实际实现中，出于内存考虑，一个节点能够容纳的光源数量有限，因此还需要根据光源强度决定保留的光源。光源的移动同样会导致八叉树部分节点删除该光源，这一删除同样由懒标记实现。懒标记的维护在遍历八叉树时进行，遍历操作包括光源和物体的插入和删除，物体渲染，在加入懒标记时，可能导致懒标记队列溢出，此时需要强制下推懒标记，强制下推的策略有待进一步研究。</p>
 <p>在渲染时，渲染器遍历八叉树并进行视锥剔除，对于通过剔除的节点，渲染器设置光源列表并对节点中的物体进行渲染。这一光源列表只是一个整型数组，是对显存中光源列表的索引，因此对显存的开销较小。</p>
