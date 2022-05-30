@@ -28,7 +28,7 @@
 <meta property="og:description" content="之前写过一些前后端的项目，但这是头一次把网站部署到公网给别人用，这里做一些记录当作经验积累 技术为了加快开发速度，选型还是熟悉的Vue+Vuetify，这个网站目前只需要前端功能，因此后端还没有选型。这一套写的很熟，所以第一版一天就给写出来了。后来遇到一个问题是正常的Vue单页应用对搜索引擎不友好，有一种说法是Google的爬虫对SPA有支持但是别的没有，所以后来用prerender-spa-pl">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-01-22T12:09:37.000Z">
-<meta property="article:modified_time" content="2022-01-27T15:11:52.738Z">
+<meta property="article:modified_time" content="2022-05-30T04:03:17.572Z">
 <meta property="article:author" content="szh">
 <meta name="twitter:card" content="summary">
 
@@ -191,7 +191,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2022-01-27 23:11:52" itemprop="dateModified" datetime="2022-01-27T23:11:52+08:00">2022-01-27</time>
+        <time title="Modified: 2022-05-30 12:03:17" itemprop="dateModified" datetime="2022-05-30T12:03:17+08:00">2022-05-30</time>
       </span>
 
   
@@ -209,10 +209,11 @@
 <p>统计方面接入了百度统计和Google Analytics，虽然百度是一坨屎，但是百度统计令人感到意外的很好用，插入代码之后五分钟之内就有数据了，还有实时的数据，就是这个网站存不住登录信息，过几个小时都要重新登陆和邮箱验证。不知道为啥Google Analytics这几天一直都没跑起来，可能是配置出了问题。在做了SSR的打包之后应该直接按照他们提供的方法在<code>index.html</code>的<code>&lt;head&gt;</code>里插入代码就好了。否则还需要在<code>main.js</code>里头加<code>router.beforeEach</code>来处理。</p>
 <p>服务器选了UCloud的香港服务器，单核2G内存1M带宽，买了两个月花了二百五十左右，主要是为了免去备案的麻烦，但是买完会有客服打电话加微信还是挺烦的。域名直接在阿里买了一年的，接近一百块。服务器就是普通的Nginx，没做特别的配置。运行了几天都挺稳定的，就是加载速度略慢，这个的原因还有待排查。</p>
 <p>后来发现确实是服务器的问题，传输一个500K的网页居然要6秒，看来需要搭CDN了，国内直接买也还要备案。客服似乎发现我服务器一直有流量进来还给我换了个高级客服。这几天发现有奇怪的域名访问进来，才想起来忘记在服务器配置域名了。现在Google Analytics也跑起来了，确实是时间的问题，但是感觉还是没有百度的好用。</p>
-<h2 id="运营"><a href="#运营" class="headerlink" title="运营"></a>运营</h2><p>1.21浏览量大概在50，主要是当天在B站专栏发了广告<br>1.22浏览量也大概在60，广告继续发挥作用，还有零星从Bing来的，说明搜索引擎开始发挥作用了<br>1.26浏览量头一次破百，主要还是广告，Bing来的不超过十，有零星从百度移动端来的</p>
+<p>2022.5.30 这几天新加了个英文站，部署在<code>/en/</code>的路径下，然后用<code>spa-plugin</code>打包的时候遇到了路径的坑，打包出来因为路径对不上效果出错，参考了这个链接<a target="_blank" rel="noopener" href="https://github.com/chrisvfritz/prerender-spa-plugin/issues/215#issuecomment-415942268">https://github.com/chrisvfritz/prerender-spa-plugin/issues/215#issuecomment-415942268</a>解决了问题。</p>
+<h2 id="运营"><a href="#运营" class="headerlink" title="运营"></a>运营</h2><p>1.21浏览量大概在50，主要是当天在B站专栏发了广告<br>1.22浏览量也大概在60，广告继续发挥作用，还有零星从Bing来的，说明搜索引擎开始发挥作用了<br>1.26浏览量头一次破百，主要还是广告，Bing来的不超过十，有零星从百度移动端来的<br>5.30 最近浏览量一直在60左右，来自搜索引擎的占三分之一，还是打算在英文上多做一些，中文有点不合适了</p>
 <h3 id="SEO"><a href="#SEO" class="headerlink" title="SEO"></a>SEO</h3><h4 id="Google"><a href="#Google" class="headerlink" title="Google"></a>Google</h4><p>Google的爬虫是三个里面最灵的，用<a target="_blank" rel="noopener" href="https://search.google.com/search-console">Search Console</a>可以检查域名有没有被收录，之后就可以向Google提交域名，这个是三个搜索引擎里最灵的，上午十一点左右提交，当天下午五点左右就给收录了，而且不需要其他信息。但是Google给的初始排名不怎么高，除了精确搜索标题排到前二之外剩下的都不在第一页里，可能是需要做SEO的地方。</p>
 <h4 id="Bing"><a href="#Bing" class="headerlink" title="Bing"></a>Bing</h4><p>Bing可以用<a target="_blank" rel="noopener" href="https://www.bing.com/webmasters">Webmaster Tool</a>提交域名并检查是否被收录，但是<code>已发现但未爬网</code>的状态让人感觉很迷，事后发现等一阵子就好了。Bing要求很多，需要提供<code>description</code>，标题还要超过15字之类的，还好这些都可以用他的网站扫描暴露出来，这些修好以后可以重新提交。Bing在上线四天左右给收录了，而且排名给到了第一页，收录之后就有了从Bing来的流量（虽然只有个位数）。</p>
-<h4 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h4><p>百度的链接在<a target="_blank" rel="noopener" href="https://ziyuan.baidu.com/">搜索资源平台</a>提交，百度是最烂的，只能检查可不可以正常爬下来，没法主动检查有没有被收录，而且到现在（上线四天以后）也没给收录，不知道发生了啥，难道是备案的问题？</p>
+<h4 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h4><p>百度的链接在<a target="_blank" rel="noopener" href="https://ziyuan.baidu.com">搜索资源平台</a>提交，百度是最烂的，只能检查可不可以正常爬下来，没法主动检查有没有被收录，而且到现在（上线四天以后）也没给收录，不知道发生了啥，难道是备案的问题？</p>
 <h3 id="其他推广"><a href="#其他推广" class="headerlink" title="其他推广"></a>其他推广</h3><p>1.21写了一篇广告（写的像论文一样）用小号发到B站专栏上了，两天大概170的浏览量10的收藏，给网站贡献了80左右的浏览量和60左右的UV，转化率还是很高。别的平台以后慢慢打广告罢，还要注册小号之类的。简书发了一篇被撤回了，好像因为外链之类的原因。目前网站主要的流量还是这些推广，希望以后能往搜索引擎方向倾斜。主要还是想多发一些带外链的广告，这样也有利于SEO。</p>
 <p>B站专栏在后面几天访问量居然一直线性增长，到27号已经破1200了，还有140左右的收藏，看来方向是正确的，这些天又深入研究了下这个方向发现同类的东西做的确实不行，应该可以多搞一搞。</p>
 
