@@ -20,23 +20,27 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
-<meta property="og:type" content="website">
-<meta property="og:title" content="blog">
-<meta property="og:url" content="http://example.com/index.html">
+<meta name="description" content="一些符号查找区域宽度 且是2的幂次 索引结构索引结构类似PGM，多层的索引被分成若干块，每一块是一个完整的索引，查询可以从块的最顶层顶路由到块的最底层，全程保持在块内。 线程组织每32个线程组成一个warp负责若干查询，一个线程块有32个warp，共1024个线程。一个块中至少有一个warp负责从全局内存读取查询。其余warp每个负责索引结构的一层。查询从索引的顶层到底层经过若干warp，形成一条">
+<meta property="og:type" content="article">
+<meta property="og:title" content="有关GPU索引">
+<meta property="og:url" content="http://example.com/2022/09/17/gpu-index/index.html">
 <meta property="og:site_name" content="blog">
+<meta property="og:description" content="一些符号查找区域宽度 且是2的幂次 索引结构索引结构类似PGM，多层的索引被分成若干块，每一块是一个完整的索引，查询可以从块的最顶层顶路由到块的最底层，全程保持在块内。 线程组织每32个线程组成一个warp负责若干查询，一个线程块有32个warp，共1024个线程。一个块中至少有一个warp负责从全局内存读取查询。其余warp每个负责索引结构的一层。查询从索引的顶层到底层经过若干warp，形成一条">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-09-17T11:10:49.000Z">
+<meta property="article:modified_time" content="2022-09-17T13:32:51.188Z">
 <meta property="article:author" content="szh">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/2022/09/17/gpu-index/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"en","comments":"","permalink":"","path":"index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2022/09/17/gpu-index/","path":"2022/09/17/gpu-index/","title":"有关GPU索引"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>blog</title>
+<title>有关GPU索引 | blog</title>
   
 
 
@@ -174,7 +178,7 @@ mjx-container[display="true"] + br {
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">blog</h1>
+      <p class="site-title">blog</p>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -202,7 +206,7 @@ mjx-container[display="true"] + br {
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -215,6 +219,7 @@ mjx-container[display="true"] + br {
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E7%AC%A6%E5%8F%B7"><span class="nav-number">1.</span> <span class="nav-text">一些符号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">索引结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BB%84%E7%BB%87"><span class="nav-number">3.</span> <span class="nav-text">线程组织</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">4.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%9D%97%E6%8F%8F%E8%BF%B0"><span class="nav-number">4.1.</span> <span class="nav-text">索引块描述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%A7%E9%97%B4%E7%BC%93%E5%AD%98"><span class="nav-number">4.2.</span> <span class="nav-text">级间缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%95%B0%E6%8D%AE"><span class="nav-number">4.3.</span> <span class="nav-text">模型和数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E5%8F%AF%E8%83%BD%E7%9A%84%E7%BB%93%E8%AE%BA"><span class="nav-number">5.</span> <span class="nav-text">一些可能的结论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E8%BF%98%E6%B2%A1%E6%83%B3%E6%B8%85%E6%A5%9A%E7%9A%84%E6%80%9D%E8%B7%AF"><span class="nav-number">6.</span> <span class="nav-text">一些还没想清楚的思路</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -256,16 +261,17 @@ mjx-container[display="true"] + br {
 </noscript>
 
 
-    <div class="main-inner index posts-expand">
+    <div class="main-inner post posts-expand">
 
-    
+
+  
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/09/17/gpu-index/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -278,9 +284,9 @@ mjx-container[display="true"] + br {
       <meta itemprop="name" content="blog">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/09/17/gpu-index/" class="post-title-link" itemprop="url">有关GPU索引</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          有关GPU索引
+        </h1>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -304,7 +310,7 @@ mjx-container[display="true"] + br {
     
     
     <div class="post-body" itemprop="articleBody">
-          <h3 id="一些符号"><a href="#一些符号" class="headerlink" title="一些符号"></a>一些符号</h3><p>查找区域宽度 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.439ex" xmlns="http://www.w3.org/2000/svg" width="11.782ex" height="2.009ex" role="img" focusable="false" viewBox="0 -694 5207.8 888"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D459" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path></g><g data-mml-node="mo" transform="translate(298,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mn" transform="translate(742.7,0)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path></g><g data-mml-node="mo" transform="translate(1520.4,0)"><path data-c="2264" d="M674 636Q682 636 688 630T694 615T687 601Q686 600 417 472L151 346L399 228Q687 92 691 87Q694 81 694 76Q694 58 676 56H670L382 192Q92 329 90 331Q83 336 83 348Q84 359 96 365Q104 369 382 500T665 634Q669 636 674 636ZM84 -118Q84 -108 99 -98H678Q694 -104 694 -118Q694 -130 679 -138H98Q84 -131 84 -118Z"></path></g><g data-mml-node="mi" transform="translate(2576.2,0)"><path data-c="1D459" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path></g><g data-mml-node="mo" transform="translate(3152,0)"><path data-c="2264" d="M674 636Q682 636 688 630T694 615T687 601Q686 600 417 472L151 346L399 228Q687 92 691 87Q694 81 694 76Q694 58 676 56H670L382 192Q92 329 90 331Q83 336 83 348Q84 359 96 365Q104 369 382 500T665 634Q669 636 674 636ZM84 -118Q84 -108 99 -98H678Q694 -104 694 -118Q694 -130 679 -138H98Q84 -131 84 -118Z"></path></g><g data-mml-node="mn" transform="translate(4207.8,0)"><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"></path><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z" transform="translate(500,0)"></path></g></g></g></svg></mjx-container>且是2的幂次</p>
+        <h3 id="一些符号"><a href="#一些符号" class="headerlink" title="一些符号"></a>一些符号</h3><p>查找区域宽度 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.439ex" xmlns="http://www.w3.org/2000/svg" width="11.782ex" height="2.009ex" role="img" focusable="false" viewBox="0 -694 5207.8 888"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D459" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path></g><g data-mml-node="mo" transform="translate(298,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mn" transform="translate(742.7,0)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path></g><g data-mml-node="mo" transform="translate(1520.4,0)"><path data-c="2264" d="M674 636Q682 636 688 630T694 615T687 601Q686 600 417 472L151 346L399 228Q687 92 691 87Q694 81 694 76Q694 58 676 56H670L382 192Q92 329 90 331Q83 336 83 348Q84 359 96 365Q104 369 382 500T665 634Q669 636 674 636ZM84 -118Q84 -108 99 -98H678Q694 -104 694 -118Q694 -130 679 -138H98Q84 -131 84 -118Z"></path></g><g data-mml-node="mi" transform="translate(2576.2,0)"><path data-c="1D459" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path></g><g data-mml-node="mo" transform="translate(3152,0)"><path data-c="2264" d="M674 636Q682 636 688 630T694 615T687 601Q686 600 417 472L151 346L399 228Q687 92 691 87Q694 81 694 76Q694 58 676 56H670L382 192Q92 329 90 331Q83 336 83 348Q84 359 96 365Q104 369 382 500T665 634Q669 636 674 636ZM84 -118Q84 -108 99 -98H678Q694 -104 694 -118Q694 -130 679 -138H98Q84 -131 84 -118Z"></path></g><g data-mml-node="mn" transform="translate(4207.8,0)"><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"></path><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z" transform="translate(500,0)"></path></g></g></g></svg></mjx-container>且是2的幂次</p>
 <h3 id="索引结构"><a href="#索引结构" class="headerlink" title="索引结构"></a>索引结构</h3><p>索引结构类似PGM，多层的索引被分成若干块，每一块是一个完整的索引，查询可以从块的最顶层顶路由到块的最底层，全程保持在块内。</p>
 <h3 id="线程组织"><a href="#线程组织" class="headerlink" title="线程组织"></a>线程组织</h3><p>每32个线程组成一个warp负责若干查询，一个线程块有32个warp，共1024个线程。一个块中至少有一个warp负责从全局内存读取查询。其余warp每个负责索引结构的一层。查询从索引的顶层到底层经过若干warp，形成一条流水线,流水线的最后一层将结果写入全局内存。理想情况下，流水线每个周期输入一组查询，输出一组结果，流水线中每层负责的查询向下一层路由一步。</p>
 <h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>如今的显卡基本都有至少64KB的共享内存，此后的推导和计算以此为前提</p>
@@ -326,7 +332,6 @@ mjx-container[display="true"] + br {
 <h3 id="一些还没想清楚的思路"><a href="#一些还没想清楚的思路" class="headerlink" title="一些还没想清楚的思路"></a>一些还没想清楚的思路</h3><p>查询在流水线中提前结束导致产生气泡，如何充分利用</p>
 <p>通过输入时多发射掩盖访问全局内存时延，参与发射的warp数量如何计算</p>
 
-      
     </div>
 
     
@@ -334,347 +339,22 @@ mjx-container[display="true"] + br {
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-      
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/01/22/website/" rel="prev" title="一个神秘网站的运营记录">
+                  <i class="fa fa-chevron-left"></i> 一个神秘网站的运营记录
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
     </footer>
   </article>
 </div>
 
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/22/website/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="szh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/01/22/website/" class="post-title-link" itemprop="url">一个神秘网站的运营记录</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-01-22 20:09:37" itemprop="dateCreated datePublished" datetime="2022-01-22T20:09:37+08:00">2022-01-22</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2022-05-30 12:03:17" itemprop="dateModified" datetime="2022-05-30T12:03:17+08:00">2022-05-30</time>
-      </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>之前写过一些前后端的项目，但这是头一次把网站部署到公网给别人用，这里做一些记录当作经验积累</p>
-<h2 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h2><p>为了加快开发速度，选型还是熟悉的Vue+Vuetify，这个网站目前只需要前端功能，因此后端还没有选型。这一套写的很熟，所以第一版一天就给写出来了。后来遇到一个问题是正常的Vue单页应用对搜索引擎不友好，有一种说法是Google的爬虫对SPA有支持但是别的没有，所以后来用<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/prerender-spa-plugin">prerender-spa-plugin</a>给打包成了服务端渲染，这个的配置参考了<a target="_blank" rel="noopener" href="https://awdr74100.github.io/2020-07-13-webpack-prerenderspaplugin/">这篇文章</a>，做了SSR还有一个好处就是接入统计的时候可以直接在index.html里插入代码，插入的统计代码会被复制到所有打包出来页面的<code>&lt;head&gt;</code>里，不用再动路由了。为了SEO还带了一个插件<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/vue-meta-info">vue-meta-info</a>，可以根据每页的配置自动生成<code>&lt;meta&gt;</code>，Bing的爬虫似乎很需要这个东西，但是Google还是不需要。</p>
-<p>统计方面接入了百度统计和Google Analytics，虽然百度是一坨屎，但是百度统计令人感到意外的很好用，插入代码之后五分钟之内就有数据了，还有实时的数据，就是这个网站存不住登录信息，过几个小时都要重新登陆和邮箱验证。不知道为啥Google Analytics这几天一直都没跑起来，可能是配置出了问题。在做了SSR的打包之后应该直接按照他们提供的方法在<code>index.html</code>的<code>&lt;head&gt;</code>里插入代码就好了。否则还需要在<code>main.js</code>里头加<code>router.beforeEach</code>来处理。</p>
-<p>服务器选了UCloud的香港服务器，单核2G内存1M带宽，买了两个月花了二百五十左右，主要是为了免去备案的麻烦，但是买完会有客服打电话加微信还是挺烦的。域名直接在阿里买了一年的，接近一百块。服务器就是普通的Nginx，没做特别的配置。运行了几天都挺稳定的，就是加载速度略慢，这个的原因还有待排查。</p>
-<p>后来发现确实是服务器的问题，传输一个500K的网页居然要6秒，看来需要搭CDN了，国内直接买也还要备案。客服似乎发现我服务器一直有流量进来还给我换了个高级客服。这几天发现有奇怪的域名访问进来，才想起来忘记在服务器配置域名了。现在Google Analytics也跑起来了，确实是时间的问题，但是感觉还是没有百度的好用。</p>
-<p>2022.5.30 这几天新加了个英文站，部署在<code>/en/</code>的路径下，然后用<code>spa-plugin</code>打包的时候遇到了路径的坑，打包出来因为路径对不上效果出错，参考了这个链接<a target="_blank" rel="noopener" href="https://github.com/chrisvfritz/prerender-spa-plugin/issues/215#issuecomment-415942268">https://github.com/chrisvfritz/prerender-spa-plugin/issues/215#issuecomment-415942268</a>解决了问题。</p>
-<h2 id="运营"><a href="#运营" class="headerlink" title="运营"></a>运营</h2><p>1.21浏览量大概在50，主要是当天在B站专栏发了广告<br>1.22浏览量也大概在60，广告继续发挥作用，还有零星从Bing来的，说明搜索引擎开始发挥作用了<br>1.26浏览量头一次破百，主要还是广告，Bing来的不超过十，有零星从百度移动端来的<br>5.30 最近浏览量一直在60左右，来自搜索引擎的占三分之一，还是打算在英文上多做一些，中文有点不合适了</p>
-<h3 id="SEO"><a href="#SEO" class="headerlink" title="SEO"></a>SEO</h3><h4 id="Google"><a href="#Google" class="headerlink" title="Google"></a>Google</h4><p>Google的爬虫是三个里面最灵的，用<a target="_blank" rel="noopener" href="https://search.google.com/search-console">Search Console</a>可以检查域名有没有被收录，之后就可以向Google提交域名，这个是三个搜索引擎里最灵的，上午十一点左右提交，当天下午五点左右就给收录了，而且不需要其他信息。但是Google给的初始排名不怎么高，除了精确搜索标题排到前二之外剩下的都不在第一页里，可能是需要做SEO的地方。</p>
-<h4 id="Bing"><a href="#Bing" class="headerlink" title="Bing"></a>Bing</h4><p>Bing可以用<a target="_blank" rel="noopener" href="https://www.bing.com/webmasters">Webmaster Tool</a>提交域名并检查是否被收录，但是<code>已发现但未爬网</code>的状态让人感觉很迷，事后发现等一阵子就好了。Bing要求很多，需要提供<code>description</code>，标题还要超过15字之类的，还好这些都可以用他的网站扫描暴露出来，这些修好以后可以重新提交。Bing在上线四天左右给收录了，而且排名给到了第一页，收录之后就有了从Bing来的流量（虽然只有个位数）。</p>
-<h4 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h4><p>百度的链接在<a target="_blank" rel="noopener" href="https://ziyuan.baidu.com">搜索资源平台</a>提交，百度是最烂的，只能检查可不可以正常爬下来，没法主动检查有没有被收录，而且到现在（上线四天以后）也没给收录，不知道发生了啥，难道是备案的问题？</p>
-<h3 id="其他推广"><a href="#其他推广" class="headerlink" title="其他推广"></a>其他推广</h3><p>1.21写了一篇广告（写的像论文一样）用小号发到B站专栏上了，两天大概170的浏览量10的收藏，给网站贡献了80左右的浏览量和60左右的UV，转化率还是很高。别的平台以后慢慢打广告罢，还要注册小号之类的。简书发了一篇被撤回了，好像因为外链之类的原因。目前网站主要的流量还是这些推广，希望以后能往搜索引擎方向倾斜。主要还是想多发一些带外链的广告，这样也有利于SEO。</p>
-<p>B站专栏在后面几天访问量居然一直线性增长，到27号已经破1200了，还有140左右的收藏，看来方向是正确的，这些天又深入研究了下这个方向发现同类的东西做的确实不行，应该可以多搞一搞。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/19/game-engine/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="szh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/01/19/game-engine/" class="post-title-link" itemprop="url">有关SimpleEngine</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-01-19 14:59:54" itemprop="dateCreated datePublished" datetime="2022-01-19T14:59:54+08:00">2022-01-19</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2022-04-18 22:47:05" itemprop="dateModified" datetime="2022-04-18T22:47:05+08:00">2022-04-18</time>
-      </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><a target="_blank" rel="noopener" href="https://github.com/Al0ha0e/SimpleEngine">SimpleEngine(SE)</a>是自己造的一个游戏引擎轮子，这篇文章用来记录SE的开发思路</p>
-<h2 id="渲染"><a href="#渲染" class="headerlink" title="渲染"></a>渲染</h2><h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>渲染器对多个渲染层进行渲染，每个层根据功能包括三个渲染队列：不透明队列、阴影队列、透明队列。三个队列各自使用一棵场景树对物体进行管理，各个队列具体情况如下：</p>
-<ul>
-<li>不透明队列：用于渲染不透明物体。</li>
-<li>阴影队列：用于渲染阴影贴图，在这一队列中的物体需要加入不透明队列才能正常渲染，这一队列不需要进行光照剔除，但需要根据光源进行视锥体剔除。</li>
-<li>透明队列：用于渲染半透明物体，这一队列中的物体需要在视锥体剔除后按由远到近的顺序进行渲染。</li>
-</ul>
-<h3 id="场景管理"><a href="#场景管理" class="headerlink" title="场景管理"></a>场景管理</h3><p>引擎使用稀疏八叉树管理一个渲染队列中的物体和光源（目前只有在阴影队列中的点光源和聚光灯有意义）。这一八叉树有一个最大高度，物体和光源根据其在世界坐标中的作用范围（物体使用AABB包围盒，光源可能使用球体）插入八叉树的某一结点。物体需要插入能包含它的最细粒度的节点，而光源需要插入到能与其唯一相交的最细粒度节点（即这一节点的兄弟与光源都是相离的关系）物体位置移动时需要更新其在八叉树中的位置，若物体仍被包含在原节点，则需要在该节点及其子节点中找到一个新位置插入物体，否则就将物体删除后重新插入树中。对光源位置的更新也是删除重新插入即可。在将物体删除后，需要合并空节点，若被合并节点有灯光，需要将灯光提高至更高层节点，并在此后节点分裂时重新下推。</p>
-<p>为了加速对象的删除和更新，需要维护对光源和物体在树中位置的索引。对于物体，只需简单记录物体所在节点及其在节点中的物体链表对应的指针即可。而对于光源，由于在合并空节点时需要将光源提高，因此需要支持查找某一子树中的所有光源的操作。这一操作一种可能的实现方法：首先对八叉树节点进行编号（可能利用中序遍历的模式编一个三维的向量），光源记录其所在节点的号，所有光源根据号的大小串成一个链表，这一过程可以用一棵线索二叉树实现，一个新光源插入时查找其前驱和后继确定其在链表中的位置，并将其加入链表和二叉树。一棵子树对应的编号是连续的，因此操作子树时只需要在二叉树中定位到链表的头尾即可。</p>
-<p>对于开放世界游戏，对象在树中的深度会随对象远离原点而增加，另一方面，场景中出现的对象只占据整个世界的一小部分连续区域，也就是说八叉树中只有一部分子树中存在对象，而这一子树到树根的路径都是空的，因而不需要实际维护这一路径，这种空闲现象伴随物体删除产生，因此在物体删除导致出现一条唯一路径指向一棵子树时，可以删除这一路径只保留根；而在插入物体时，如果发现根节点不能包含物体，需要重新生成根节点的父亲并将其作为新的根节点直到其包含物体。</p>
-<p>对场景进行渲染时，从树根处出发对八叉树节点进行视锥体剔除。对光源阴影渲染时，从光源索引处出发对子树中节点进行光源视锥体剔除。</p>
-<p>这一数据结构起到以下几个作用：</p>
-<ul>
-<li>利用八叉树加速视锥体剔除的过程</li>
-<li>利用八叉树快速筛选出渲染某一光源时需要提交Drawcall的物体</li>
-</ul>
-<p>这一数据结构的设计思路和依据在于，物体和光源的变化具有一定的局部性，因此采用动态的八叉树结构可以将对象插入删除的开销分摊到每一帧。对于较少物体，八叉树可以收缩不必要的节点，因此遍历八叉树进行剔除的开销和遍历物体列表全部提交drawcall的（遍历）开销规模是近似的，而八叉树可以轻松剔除视锥外的物体减少drawcall使得实际性能得到提升。场景需要用到实时阴影的动态光源较少，因此即使暴力插入删除开销也是可以接受的，而其在渲染shadowmap时可以根据光源作用范围快速剔除大量无关物体，相较此前需要渲染所有物体性能大大提升。</p>
-<p>场景管理的思路在过去几周一直在变，从最开始为每一个队列维护一棵树和所有光源，到所有物体和光源共享一棵树，再到现在的每个队列维护一棵树，只把投射阴影的光源加入阴影队列再用GPU中的数据结构管理光源。在各种细枝末节的事情上卡了好长时间才发现问题的根源，之前一直把做Shading的光源和渲染Shadowmap的光源混为一谈，为了优化巨量光源在树上进行各种插入删除煞费苦心，但实际上八叉树只需要对Shadowmap的渲染做剔除就可以了。</p>
-<p>到这里就需要一种统一的管理大世界场景的框架，这一框架可以根据主摄像机位置动态按区块加载和移除各种LOD级别的资源，在加载灯光和物体后通知场景管理的数据结构进行更新，并且和未来的地形系统对接。其中的耦合是很严重的，尤其是这一框架需要根据地形系统的某些几何特性选择数据结构，这也是为什么这个项目酝酿了这么久。</p>
-<h3 id="渲染管线"><a href="#渲染管线" class="headerlink" title="渲染管线"></a>渲染管线</h3><p>目前实现了Cluster based Forward+管线，在实现的过程里遇到一些坑，一个是Shader里的Buffer布局有<code>std140</code>和<code>std430</code>，140的数组要对齐成<code>vec4</code>，还有一个问题是所有单元的光源最大数量乘以单元数要小于等于全局光源索引表的大小，现在的Cluster是<code>8*8*16</code>，每个单元最多64盏灯光，一共65536个索引。在实现Depth prepass的过程中遇到两个问题，一个是在实际着色前关掉了深度写入，但是在下一帧清除前要开启深度写入，不然没法清除；还有一个是着色Shader和深度Shader用同一几何数据算出来的片元深度可能不一致，导致绘制出来存在闪烁现象，具体解决方法参见<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/46914862/z-fighting-after-depth-prepass-on-gtx-980">这里</a></p>
-<p>管线的实现还存在以下几个问题：</p>
-<ul>
-<li>Cluster对于z的线性划分不合理</li>
-<li>光源范围计算存在问题，目前是用衰减到0.1代入计算，但是画面会出现分块现象，但是从视觉效果上看光源影响范围要小</li>
-</ul>
-<h3 id="全局光照"><a href="#全局光照" class="headerlink" title="全局光照"></a>全局光照</h3><p>全局光照系统的实现细节还没有确定，有几个大概思路：</p>
-<ul>
-<li>采用VXGI</li>
-<li>每个Voxel只保存Phong漫反射颜色的均值</li>
-<li>Diffuse Cone实现参考IBL的Diffuse部分</li>
-<li>需要针对GGX BRDF确定Glossy Cone的实现细节</li>
-</ul>
-<p>有一个可以优化的点，之前的VXGI实现中Voxel中存储的是材质与光源作用后的数据，如果能将二者分开可能会获得性能提升，尤其是在地形系统中，处理场景破坏时顺便就可以更新Voxel数据。一种暴力的实现方式是将一个Voxel看作一个面，存储面的平均颜色和法线以及可以对其造成影响的光源列表，在做ConeTracing的时候进行漫反射颜色计算，对于每个片元发出的每个Cone，造成的开销是能够对其产生影响的光源数量的点乘，但是问题在于如何高效维护Voxel的光源列表。</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/07/psi/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="szh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/01/07/psi/" class="post-title-link" itemprop="url">PSI</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-01-07 18:02:00" itemprop="dateCreated datePublished" datetime="2022-01-07T18:02:00+08:00">2022-01-07</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2022-01-10 19:20:29" itemprop="dateModified" datetime="2022-01-10T19:20:29+08:00">2022-01-10</time>
-      </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="一些前置知识"><a href="#一些前置知识" class="headerlink" title="一些前置知识"></a>一些前置知识</h2><h3 id="OPRF"><a href="#OPRF" class="headerlink" title="OPRF"></a>OPRF</h3><p><a target="_blank" rel="noopener" href="https://www.iacr.org/archive/tcc2005/3378_304/3378_304.pdf">Keyword search and oblivious pseudorandom functions.</a></p>
-<h3 id="IKNP"><a href="#IKNP" class="headerlink" title="IKNP"></a>IKNP</h3><p><a target="_blank" rel="noopener" href="https://www.iacr.org/archive/crypto2003/27290145/27290145.pdf">Extending oblivious transfers efficiently.</a></p>
-<h3 id="KK13"><a href="#KK13" class="headerlink" title="KK13"></a>KK13</h3><p><a target="_blank" rel="noopener" href="https://eprint.iacr.org/2013/491.pdf">Improved OT extension for transferring short secrets.</a></p>
-<h2 id="基于OT的PSI"><a href="#基于OT的PSI" class="headerlink" title="基于OT的PSI"></a>基于OT的PSI</h2><h3 id="PSZ14"><a href="#PSZ14" class="headerlink" title="PSZ14"></a>PSZ14</h3><p><a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-pinkas.pdf">Faster private set intersection based on OT extension.</a></p>
-<h3 id="PSSZ15"><a href="#PSSZ15" class="headerlink" title="PSSZ15"></a>PSSZ15</h3><p><a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/usenixsecurity15/sec15-paper-pinkas.pdf">Phasing: Private set intersection using permutation-based hashing.</a></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/30/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="szh">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/12/30/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2021-12-30 11:26:21" itemprop="dateCreated datePublished" datetime="2021-12-30T11:26:21+08:00">2021-12-30</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
 
 
 
